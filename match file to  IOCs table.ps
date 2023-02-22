@@ -1,0 +1,41 @@
+# Set path to the file to analyze
+$file_path = "C:\path\to\suspicious\file.exe"
+
+# Define the list of IoCs to match against the file
+$iocs = @(
+    "malware",
+    "virus",
+    "trojan",
+    "backdoor",
+    "spyware",
+    "ransomware",
+    "keylogger",
+    "botnet",
+    "phishing",
+    "exploit",
+    "command-and-control",
+    "IP address",
+    "URL",
+    "domain name",
+    "email address",
+    "registry key",
+    "file path"
+)
+
+# Create a table of matched IoCs and their count
+$ioc_table = @{}
+foreach ($ioc in $iocs) {
+    $count = Select-String -Path $file_path -Pattern $ioc -AllMatches | Select-Object -ExpandProperty Matches | Measure-Object | Select-Object -ExpandProperty Count
+    if ($count -gt 0) {
+        $ioc_table[$ioc] = $count
+    }
+}
+
+# Print the table of matched IoCs
+if ($ioc_table.Count -gt 0) {
+    Write-Host "Suspicious IoCs found in file:" -ForegroundColor Yellow
+    $ioc_table.GetEnumerator() | Sort-Object -Property Value -Descending | Format-Table -AutoSize
+}
+else {
+    Write-Host "No suspicious IoCs found in file." -ForegroundColor Green
+}
