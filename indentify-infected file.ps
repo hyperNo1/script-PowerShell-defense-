@@ -1,0 +1,20 @@
+$downloadFolder = "C:\Users\USERNAME\Downloads" # Replace USERNAME with the appropriate username
+$fileExtension = ".exe" # Replace with the appropriate file extension
+$virustotalApiKey = "YOUR_API_KEY" # Replace with your own VirusTotal API key
+
+# Get all files in the downloads folder with the specified extension
+$downloadedFiles = Get-ChildItem $downloadFolder -Recurse -Include *$fileExtension
+
+foreach ($file in $downloadedFiles) {
+    # Check if the file has a VirusTotal scan report
+    $virusTotalReport = Invoke-RestMethod -Uri "https://www.virustotal.com/vtapi/v2/file/report?apikey=$virustotalApiKey&resource=$($file.FullName)" -Method GET
+    
+    if ($virusTotalReport.response_code -eq 1) {
+        # Check if the file was detected by any antivirus engines
+        $positives = $virusTotalReport.positives
+        if ($positives -gt 0) {
+            Write-Host "The file $($file.Name) was downloaded and has been detected by $positives antivirus engines."
+            # You can also choose to take additional actions here, such as deleting or quarantining the file.
+        }
+    }
+}
