@@ -1,0 +1,23 @@
+# Set path to the Sandboxie installation directory
+$sandboxie_path = "C:\Program Files\Sandboxie"
+
+# Set path to the suspicious file to run in the sandbox
+$file_path = "C:\path\to\suspicious\file.exe"
+
+# Set path to the output log file
+$log_file = "C:\path\to\output\log.docx"
+
+# Create a new Sandboxie sandbox
+$cmd = "$sandboxie_path\SbieCtrl.exe /install"
+Start-Process -FilePath cmd.exe -ArgumentList "/c", $cmd -Verb RunAs
+
+# Run the suspicious file in the Sandboxie sandbox and log its behavior
+$cmd = "$sandboxie_path\Start.exe /box:MySandbox /wait /log:$log_file $file_path"
+Start-Process -FilePath cmd.exe -ArgumentList "/c", $cmd -Verb RunAs
+
+# Wait for the sandboxed process to finish
+Start-Sleep -Seconds 10
+
+# Terminate the Sandboxie sandbox
+$cmd = "$sandboxie_path\SbieCtrl.exe /terminate"
+Start-Process -FilePath cmd.exe -ArgumentList "/c", $cmd -Verb RunAs
