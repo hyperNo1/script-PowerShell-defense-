@@ -1,0 +1,29 @@
+# Get the path of the suspicious file
+$filePath = "C:\Path\To\Suspicious\File.exe"
+
+# List all processes that have loaded the file
+$processes = Get-Process | Where-Object {$_.Modules.FileName -eq $filePath}
+if ($processes) {
+    Write-Host "The following processes have loaded the suspicious file:"
+    $processes | Format-Table -AutoSize Name, Id, Path
+    Write-Host ""
+}
+
+# List all registry keys associated with the file
+$regKeys = Get-ChildItem -Path HKLM:\ -Recurse | Where-Object {$_.Property -contains $filePath}
+if ($regKeys) {
+    Write-Host "The following registry keys are associated with the suspicious file:"
+    $regKeys | Format-Table -AutoSize Name, Property, Value
+    Write-Host ""
+}
+
+# Suggest possible resolutions
+if ($processes -or $regKeys) {
+    Write-Host "Suggested actions:"
+    Write-Host "- Terminate any suspicious processes"
+    Write-Host "- Delete the suspicious file"
+    Write-Host "- Delete any associated registry keys"
+}
+else {
+    Write-Host "No suspicious processes or registry keys were found."
+}
